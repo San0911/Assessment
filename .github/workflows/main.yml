@@ -1,0 +1,71 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-region: us-east-1
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+
+    - name: Terraform Init and Apply
+      env:
+        TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+        TF_VAR_db_user: ${{ secrets.DB_USER }}
+        TF_VAR_db_name: ${{ secrets.DB_NAME }}
+      run: |
+        terraform init
+        terraform apply -auto-approve
+
+    - name: Save DB Credentials
+      id: output
+      run: echo "::set-output name=db_credentials::$(terraform output -json db_connection_details)"
+
+  deploy:
+    needs: terraform
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Minikube
+      run: |
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        chmod +x minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+        minikube start
+
+    - name: Build Docker Image
+      run: |
+        eval $(minikube docker-env)
+        docker build -t flask-app:latest app/.
+
+    - name: Create Kubernetes Secrets
+      run: |
+        DB_CREDENTIALS=${{ steps.terraform.outputs.db_credentials }}
+        kubectl create secret generic db-credentials \
+          --from-literal=db_host=$(echo $DB_CREDENTIALS | jq -r '.db_host') \
+          --from-literal=db_user=$(echo $DB_CREDENTIALS | jq -r '.db_user') \
+          --from-literal=db_password=$(echo $DB_CREDENTIALS | jq -r '.db_password') \
+          --from-literal=db_name=$(echo $DB_CREDENTIALS | jq -r '.db_name')
+
+    - name: Apply Kubernetes Config
+      run: kubectl apply -f k8s/
