@@ -8,6 +8,7 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
+    environment: Dev
 
     steps:
     - name: Checkout code
@@ -41,6 +42,7 @@ jobs:
   deploy:
     needs: terraform
     runs-on: ubuntu-latest
+    environment: Dev
 
     steps:
     - name: Checkout code
@@ -60,7 +62,7 @@ jobs:
 
     - name: Create Kubernetes Secrets
       run: |
-        DB_CREDENTIALS=${{ steps.terraform.outputs.db_credentials }}
+        DB_CREDENTIALS=${{ steps.output.outputs.db_credentials }}
         kubectl create secret generic db-credentials \
           --from-literal=db_host=$(echo $DB_CREDENTIALS | jq -r '.db_host') \
           --from-literal=db_user=$(echo $DB_CREDENTIALS | jq -r '.db_user') \
