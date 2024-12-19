@@ -3,19 +3,6 @@ provider "aws" {
   profile = "User-1"
 }
 
-
-# DynamoDB table for state locking
-resource "aws_dynamodb_table" "terraform_locks" {
-  name         = "terraform-locks"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-}
-
 # PostgreSQL database
 resource "aws_db_instance" "postgres" {
   allocated_storage    = 5
