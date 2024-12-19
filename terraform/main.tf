@@ -1,6 +1,6 @@
 provider "aws" {
   region  = var.aws_region
-  profile = "default"
+  profile = "User-1"
 }
 
 # S3 bucket for state storage
