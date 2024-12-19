@@ -33,7 +33,7 @@ jobs:
         TF_VAR_db_user: ${{ secrets.DB_USER }}
         TF_VAR_db_name: ${{ secrets.DB_NAME }}
       run: |
-        terraform init
+        terraform init -reconfigure
         terraform apply -auto-approve
 
     - name: Save DB Credentials
