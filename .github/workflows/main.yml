@@ -76,3 +76,4 @@ jobs:
     - name: Apply Kubernetes Config
       run: |
         kubectl apply -f k8s/
+        
