@@ -20,7 +20,7 @@ output "db_connection_details" {
     db_host     = aws_db_instance.postgres.endpoint
     db_user     = aws_db_instance.postgres.username
     db_password = aws_db_instance.postgres.password
-    db_name     = aws_db_instance.postgres.name
+    db_name     = aws_db_instance.postgres.db_name
   })
   sensitive = true
 }
