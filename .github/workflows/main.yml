@@ -34,7 +34,9 @@ jobs:
         TF_VAR_db_name: ${{ secrets.DB_NAME }}
       run: |
         terraform init -reconfigure
-        terraform apply -auto-approve
+        terraform apply -var "db_name=${{ secrects.DB_NAME }} \
+        -var "db_user=${{ secrects.DB_NAME }}" \
+        -var "db_password=${{ secrects.DB_PASSWORD }}" -auto-approve
 
     - name: Save DB Credentials
       id: output
