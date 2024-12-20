@@ -72,4 +72,6 @@ jobs:
           --from-literal=db_name=$(echo $DB_CREDENTIALS | jq -r '.db_name')
 
     - name: Apply Kubernetes Config
-      run: kubectl apply -f k8s/
+      run: |
+        kubectl apply -f ../k8s/deployment.yaml
+        kubectl apply -f ../k8s/service.yaml
