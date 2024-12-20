@@ -34,7 +34,7 @@ jobs:
         TF_VAR_db_name: ${{ secrets.DB_NAME }}
       run: |
         terraform init -reconfigure
-        terraform apply -var "db_name=${{ secrets.DB_NAME }} \
+        terraform apply -var "db_name=${{ secrets.DB_NAME }}" \
         -var "db_user=${{ secrets.DB_NAME }}" \
         -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
 
